@@ -8,6 +8,26 @@
 #define BUF_SIZE 1024
 #define MAX_ARGS 64
 
+void change_dir(char *arg) {
+    if (arg == NULL) {
+        arg = getenv("HOME");
+    }
+
+    // Attempt to change the directory
+    if (chdir(arg) != 0) {
+        perror("error: chdir failed");
+    }
+
+    // Update the PWD environment variable
+    char *new_pwd = getcwd(NULL, 0);
+    if (new_pwd != NULL) {
+        setenv("PWD", new_pwd, 1);
+        free(new_pwd);
+    } else {
+        perror("error: getcwd failed");
+    }
+}
+
 int execute() {
     char buf[BUF_SIZE];
     char *args[MAX_ARGS];
@@ -33,7 +53,10 @@ int execute() {
         
     // Build in programs
     if (strcmp(args[0], "exit") == 0) return -100;
-    if (strcmp(args[0], "cd") == 0)
+    if (strcmp(args[0], "cd") == 0) {
+        change_dir(args[1]);
+        return 0;
+    }
 
     // Fork to get child for new program
     pid_t pid = fork();
@@ -43,7 +66,7 @@ int execute() {
         return -1;
     }
     else if (pid == 0) {
-        else if (execvp(args[0], args) == -1) {
+        if (execvp(args[0], args) == -1) {
             perror("error: execvp failed");
             exit(EXIT_FAILURE);
         }
