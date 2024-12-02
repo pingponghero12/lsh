@@ -13,7 +13,7 @@
 #include <errno.h>
 
 extern pid_t child_pid;
-extern volatile sig_atomic_t sigint_received;
+extern volatile sig_atomic_t signal_received;
 
 int interact();
 int read_input(char **args);

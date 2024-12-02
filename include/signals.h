@@ -13,9 +13,12 @@
 #include <errno.h>
 
 extern pid_t child_pid;
-extern volatile sig_atomic_t sigint_received;
+extern volatile sig_atomic_t signal_received;
 
 void handle_sigint(int dummy);
+void handle_sigterm(int dummy);
+void handle_sigquit(int dummy);
+void handle_sigtstp(int dummy);
 
 #endif //__SIGNALS__
 

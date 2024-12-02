@@ -27,7 +27,7 @@ int interact() {
         return -1;
     }
 
-    if (sigint_received == 1) {
+    if (signal_received == 1) {
         return -1;
     }
 

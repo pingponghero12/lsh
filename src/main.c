@@ -14,10 +14,14 @@
 #define MAX_ARGS 64
 
 pid_t child_pid = -1;
-volatile sig_atomic_t sigint_received = 0;
+volatile sig_atomic_t signal_received = 0;
 
 int main() {
     signal(SIGINT, handle_sigint);
+    signal(SIGTERM, handle_sigterm);
+    signal(SIGQUIT, handle_sigquit);
+    signal(SIGTSTP, SIG_IGN);
+    signal(SIGTSTP, handle_sigtstp);
     
     while (1) {
         // Display the prompt
@@ -26,8 +30,8 @@ int main() {
         // Read standard input and execute programs
         int exec = interact();
 
-        if (sigint_received == 1) {
-            sigint_received = 0;
+        if (signal_received == 1) {
+            signal_received = 0;
             continue;
         }
 
