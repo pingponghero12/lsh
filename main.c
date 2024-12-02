@@ -4,9 +4,19 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <errno.h>
 
 #define BUF_SIZE 1024
 #define MAX_ARGS 64
+
+pid_t child_pid = -1;
+
+void handle_signal(int dummy) {
+    if (child_pid > 0) {
+        kill(child_pid, SIGKILL);
+        waitpid(child_pid, NULL, 0);
+    }
+}
 
 void change_dir(char *arg) {
     if (arg == NULL) {
@@ -59,13 +69,13 @@ int execute() {
     }
 
     // Fork to get child for new program
-    pid_t pid = fork();
+    child_pid = fork();
     
-    if (pid == -1) {
+    if (child_pid == -1) {
         perror("error: forked failed");
         return -1;
     }
-    else if (pid == 0) {
+    else if (child_pid == 0) {
         if (execvp(args[0], args) == -1) {
             perror("error: execvp failed");
             exit(EXIT_FAILURE);
@@ -73,9 +83,11 @@ int execute() {
     }
     else {
         int status;
-        if (waitpid(pid, &status, 0) == -1) {
-            perror("error: waitpid failed");
-            return -1;
+        if (waitpid(child_pid, &status, 0) == -1) {
+            if (errno != EINTR) {
+                perror("error: waitpid failed");
+                return -1;
+            }
         }
     }
     
@@ -94,6 +106,14 @@ int main() {
     if (gethostname(hostname, sizeof(hostname)) == -1) {
         strcpy(hostname, "unknown");
     }
+
+    // Set up signal handler
+    struct sigaction sa;
+    sa.sa_handler = handle_signal;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sigaction(SIGTERM, &sa, NULL);
+    sigaction(SIGINT, &sa, NULL);
     
     while (1) {
         // Get the current working directory
