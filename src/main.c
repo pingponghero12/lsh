@@ -8,24 +8,13 @@
 
 #include "interact.h"
 #include "clp.h"
+#include "signals.h"
 
 #define BUF_SIZE 1024
 #define MAX_ARGS 64
 
 pid_t child_pid = -1;
 volatile sig_atomic_t sigint_received = 0;
-
-void handle_sigint(int dummy) {
-    sigint_received = 1;
-
-    if (child_pid > 0) {
-        kill(child_pid, SIGINT);
-        waitpid(child_pid, NULL, WNOHANG);
-    }
-
-    const char skipline[] = "\n";
-    write(STDOUT_FILENO, skipline, sizeof(skipline)-1);
-}
 
 int main() {
     signal(SIGINT, handle_sigint);
