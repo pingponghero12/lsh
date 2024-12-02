@@ -13,36 +13,42 @@
 #define MAX_ARGS 64
 
 pid_t child_pid = -1;
+volatile sig_atomic_t sigint_received = 0;
 
-void handle_signal(int dummy) {
+void handle_sigint(int dummy) {
+    sigint_received = 1;
+
     if (child_pid > 0) {
-        kill(child_pid, SIGKILL);
-        waitpid(child_pid, NULL, 0);
+        kill(child_pid, SIGINT);
+        waitpid(child_pid, NULL, WNOHANG);
     }
+
+    const char skipline[] = "\n";
+    write(STDOUT_FILENO, skipline, sizeof(skipline)-1);
 }
 
 int main() {
-
-
-    // Set up signal handler
-    struct sigaction sa;
-    sa.sa_handler = handle_signal;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-    sigaction(SIGTERM, &sa, NULL);
-    sigaction(SIGINT, &sa, NULL);
+    signal(SIGINT, handle_sigint);
     
     while (1) {
-        // Display the prompt with colors
+        // Display the prompt
         print_clp();
 
+        // Read standard input and execute programs
         int exec = interact();
-        // Execute the entered command
-        if (exec == -1) {
-            // Handle execute error if needed
+
+        if (sigint_received == 1) {
+            sigint_received = 0;
             continue;
         }
+
+        if (exec == -1) {
+            // All error messages are showned in exec_func() in interact.c
+            continue;
+        }
+        // Exit program
         else if (exec == -100) break;
     }
+
     return 0;
 }

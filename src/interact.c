@@ -27,6 +27,10 @@ int interact() {
         return -1;
     }
 
+    if (sigint_received == 1) {
+        return -1;
+    }
+
     // Build in programs
     if (strcmp(args[0], "exit") == 0) {
         return -100;
