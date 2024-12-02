@@ -37,11 +37,10 @@ void handle_sigquit(int dummy) {
 }
 
 void handle_sigtstp(int dummy) {
-    signal_received = 0;
+    signal_received = 1;
 
     if (child_pid > 0) {
         kill(child_pid, SIGTSTP);
-        child_pid = 0;
     }
 
     const char newline[] = "\n";

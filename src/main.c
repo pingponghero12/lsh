@@ -20,8 +20,7 @@ int main() {
     signal(SIGINT, handle_sigint);
     signal(SIGTERM, handle_sigterm);
     signal(SIGQUIT, handle_sigquit);
-    signal(SIGTSTP, SIG_IGN);
-    signal(SIGTSTP, handle_sigtstp);
+    // signal(SIGTSTP, handle_sigtstp);
     
     while (1) {
         // Display the prompt
