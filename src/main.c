@@ -7,6 +7,7 @@
 #include <errno.h>
 
 #include "interact.h"
+#include "clp.h"
 
 #define BUF_SIZE 1024
 #define MAX_ARGS 64
@@ -20,19 +21,8 @@ void handle_signal(int dummy) {
     }
 }
 
-
 int main() {
-    // Get the username
-    char *username = getenv("USER");
-    if (username == NULL) {
-        username = "unknown";
-    }
 
-    // Get the hostname
-    char hostname[64];
-    if (gethostname(hostname, sizeof(hostname)) == -1) {
-        strcpy(hostname, "unknown");
-    }
 
     // Set up signal handler
     struct sigaction sa;
@@ -43,18 +33,8 @@ int main() {
     sigaction(SIGINT, &sa, NULL);
     
     while (1) {
-        // Get the current working directory
-        char *pwd = getcwd(NULL, 0);
-        if (pwd == NULL) {
-            perror("error: getcwd failed");
-            continue;
-        }
-
         // Display the prompt with colors
-        printf("\033[33m%s@\033[31m%s\033[0m:\033[32m%s\033[0m$ ", username, hostname, pwd);
-        fflush(stdout);
-
-        free(pwd);
+        print_clp();
 
         int exec = interact();
         // Execute the entered command
