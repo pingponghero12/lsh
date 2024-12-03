@@ -1,9 +1,8 @@
-#ifndef __INTERACT__
-#define __INTERACT__
+#ifndef __EXECS__
+#define __EXECS__
 
 #define BUF_SIZE 1024
 #define MAX_ARGS 64
-#define MAX_CMDS 10
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,13 +12,13 @@
 #include <sys/wait.h>
 #include <errno.h>
 
-#include "execs.h"
+#include "interact.h"
 
 extern pid_t child_pid;
 extern volatile sig_atomic_t signal_received;
 
-int interact();
-int read_input(char ***cmds, int *num_cmds, int *background);
+int exec_func(char **args, int *background);
+int exec_pipeline(char ***cmds, int num_cmds, int background);
 
-#endif //__INTERACT__
+#endif //__EXECS__
 
