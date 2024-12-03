@@ -16,8 +16,8 @@ extern pid_t child_pid;
 extern volatile sig_atomic_t signal_received;
 
 int interact();
-int read_input(char **args);
-int exec_func(char **args);
+int read_input(char **args, int *argc, int *background);
+int exec_func(char **args, int *background);
 
 #endif //__INTERACT__
 

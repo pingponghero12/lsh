@@ -22,13 +22,20 @@ void cd_func(char *arg) {
 
 int interact() {
     char *args[MAX_ARGS];
+    int argc = 0;
+    int background = 0;
 
-    if (read_input(args) == -1) {
+    if (read_input(args, &argc, &background) == -1) {
         return -1;
     }
 
     if (signal_received == 1) {
         return -1;
+    }
+
+    // Empty input case
+    if (argc == 0 || args[0] == NULL) {
+        return 0;
     }
 
     // Build in programs
@@ -41,10 +48,10 @@ int interact() {
     }
 
     // Exec the command
-    return exec_func(args);
+    return exec_func(args, &background);
 }
 
-int read_input(char **args) {
+int read_input(char **args, int *argc, int *background) {
     char buf[BUF_SIZE];
     ssize_t bytes_read;
 
@@ -58,18 +65,22 @@ int read_input(char **args) {
 
     if (buf[bytes_read-1] == '\n') buf[bytes_read-1] = '\0';
 
-    int argc = 0;
     char *token = strtok(buf, " ");
-    while (token != NULL && argc < MAX_ARGS-1) { 
-        args[argc++] = token;
+    while (token != NULL && *argc < MAX_ARGS-1) { 
+        args[(*argc)++] = token;
         token = strtok(NULL, " ");
     }
-    args[argc] = NULL;
+    args[*argc] = NULL;
+
+    if (*argc > 1 && strcmp(args[(*argc)-1], "&") == 0) {
+        args[(*argc)-1] = NULL;
+        *background = 1;
+    }
 
     return 0;
 }
         
-int exec_func(char **args) {
+int exec_func(char **args, int *background) {
     // Fork to get child for new program
     child_pid = fork();
     
@@ -85,6 +96,10 @@ int exec_func(char **args) {
     }
     else {
         int status;
+        if (*background == 1) {
+            *background = 0;
+            return 0;
+        }
         if (waitpid(child_pid, &status, 0) == -1) {
             if (errno != EINTR) {
                 perror("error: waitpid failed");
@@ -92,6 +107,5 @@ int exec_func(char **args) {
             }
         }
     }
-    
     return 0;
 }
