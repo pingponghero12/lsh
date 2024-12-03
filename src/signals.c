@@ -46,3 +46,7 @@ void handle_sigtstp(int dummy) {
     const char newline[] = "\n";
     write(STDOUT_FILENO, newline, sizeof(newline) - 1);
 }
+
+void handle_sigchld(int dummy) {
+    while (waitpid(-1, NULL, WNOHANG) > 0) {};
+}

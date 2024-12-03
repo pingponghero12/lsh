@@ -20,5 +20,7 @@ void handle_sigterm(int dummy);
 void handle_sigquit(int dummy);
 void handle_sigtstp(int dummy);
 
+void handle_sigchld(int dummy);
+
 #endif //__SIGNALS__
 

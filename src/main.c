@@ -22,6 +22,9 @@ int main() {
     signal(SIGQUIT, handle_sigquit);
     // signal(SIGTSTP, handle_sigtstp);
     
+    // Handle zombie children
+    signal(SIGCHLD, handle_sigchld);
+
     while (1) {
         // Display the prompt
         print_clp();
