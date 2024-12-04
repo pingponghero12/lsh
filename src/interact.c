@@ -48,6 +48,7 @@ int interact() {
             cd_func(args[1]);
             return 0;
         }
+        else return exec_func(args, &background);
     }
 
     // Execute the pipeline of commands
